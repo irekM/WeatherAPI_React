@@ -7,7 +7,14 @@ import './App.css';
 class App extends Component {
 
 state = {
-  value: ""
+  value: '',
+  date: '',
+  city: '',
+  sunrise: '',
+  sunset: '',
+  pressure: '',
+  wind: '',
+  err: '',
 }
 
 handleInputChange = (e) => {
@@ -16,11 +23,31 @@ handleInputChange = (e) => {
   })
 }
 
+handleCitySubmit = e =>{
+  e.preventDefault();
+  const API = `http://api.openweathermap.org/data/2.5/weather?q=${this.state.value}&appid=e4adfa1eeda8cf91dda24ccaa0505163&units=metric`;
+
+  fetch(API)
+  .then(response => {if(response.ok){
+    return response
+  }
+  throw Error("Nie udało się")
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(err => console.log(err))
+
+}
+
 
 render() {
   return (
     <div className="App">
-      <Form value={this.state.value} change={this.handleInputChange} />
+      <Form 
+      value={this.state.value} 
+      change={this.handleInputChange}
+      submit={this.handleCitySubmit}
+       />
       <Result />
     </div>
   );
