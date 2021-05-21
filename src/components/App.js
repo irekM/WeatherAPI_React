@@ -3,7 +3,9 @@ import Form from'./Form';
 import Result from './Result';
 import './App.css';
 
+const APIKey = 'e4adfa1eeda8cf91dda24ccaa0505163';
 
+//klucz do API
 class App extends Component {
 
 state = {
@@ -14,7 +16,7 @@ state = {
   sunset: '',
   pressure: '',
   wind: '',
-  err: '',
+  err: false,
 }
 
 handleInputChange = (e) => {
@@ -25,7 +27,7 @@ handleInputChange = (e) => {
 
 handleCitySubmit = e =>{
   e.preventDefault();
-  const API = `http://api.openweathermap.org/data/2.5/weather?q=${this.state.value}&appid=e4adfa1eeda8cf91dda24ccaa0505163&units=metric`;
+  const API = `http://api.openweathermap.org/data/2.5/weather?q=${this.state.value}&appid=${APIKey}&units=metric`;
 
   fetch(API)
   .then(response => {if(response.ok){
@@ -33,10 +35,32 @@ handleCitySubmit = e =>{
   }
   throw Error("Nie udało się")
 })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(err => console.log(err))
 
+//pobrany json i przerobiony na obiekt
+
+  .then(response => response.json())
+  .then(data => {
+    const time = new Date().toLocaleString()
+    this.setState(state=>({
+
+      error:false,
+      city: state.value,
+      date: time,
+      sunset: data.sys.sunset,
+      sunrise: data.sys.sunrise,
+      wind: data.wind.speed,
+      pressure: data.main.pressure,
+      temp: data.main.temp,
+    }))
+  })
+  .catch(err => {console.log(err);
+  this.setState(state=>({
+    err:true,
+    city: this.state.value,
+  }))
+  
+
+})
 }
 
 
@@ -48,7 +72,7 @@ render() {
       change={this.handleInputChange}
       submit={this.handleCitySubmit}
        />
-      <Result />
+      <Result weather = {this.state} />
     </div>
   );
 }
